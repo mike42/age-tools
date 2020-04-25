@@ -1,6 +1,6 @@
+from dataclasses import dataclass
 from typing import List
 
-from attr import dataclass
 
 from libage.data import technology, civilization, effect, random_map, terrain, terrain_border, sprite, sound, \
     color_table, terrain_table

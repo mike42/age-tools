@@ -1,6 +1,5 @@
 import logging
 
-from attr import dataclass
 
 #
 # @dataclass

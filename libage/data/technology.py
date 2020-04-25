@@ -1,6 +1,6 @@
+from dataclasses import dataclass
 from typing import List
 
-from attr import dataclass
 
 from libage.scenario.data import ScnDataReader
 
@@ -26,7 +26,7 @@ class Technology:
     costs: List[TechnologyCost]
     min_required_techs: int
     research_location: int
-    langauge_file_name: int
+    language_file_name: int
     language_file_desc: int
     research_time: int
     effect: int

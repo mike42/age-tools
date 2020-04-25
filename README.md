@@ -4,12 +4,17 @@ Python library and command-line tools for working with Age of Empires I data fil
 
 ## Examples
 
-Render a scenario file to a diamond-shaped image showing terrain, resources and unit locations.
+Render a scenario file to a diamond-shaped image showing terrain, resources and unit locations:
 
 ```
 age-scenario minimap foo.scx --out foo.png
 ```
 
+Extract game data to a YAML file. This makes it possible to compare game data files (eg. using `diff`) to check the contents of a mod:
+
+```
+age-gamedata extract empires.dat --out empires.yml
+```
 
 ## Attribution
 

@@ -1,6 +1,5 @@
+from dataclasses import dataclass
 from typing import List
-
-from attr import dataclass
 
 from libage.data.unit import read_unit
 from libage.scenario.data import ScnDataReader

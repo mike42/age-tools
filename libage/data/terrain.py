@@ -1,4 +1,4 @@
-from attr import dataclass
+from dataclasses import dataclass
 
 from libage.scenario.data import ScnDataReader
 

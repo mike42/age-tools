@@ -1,0 +1,52 @@
+#!/usr/bin/env python3
+import argparse
+import dataclasses
+import logging
+import sys
+
+import yaml
+
+from libage.data import game_data
+
+
+def extract_command(extract_args):
+    # Extract data from AOE1 game data file
+    input_filename = extract_args.data_file
+    data_file = game_data.load(input_filename)
+    data_file = dataclasses.asdict(data_file)
+    data_yml = yaml.dump(data_file, allow_unicode=True, default_flow_style=False)
+    if extract_args.out is None:
+        print(data_yml)
+    else:
+        open(extract_args.out, 'w+').write(data_yml)
+
+
+def main():
+    # General stuff
+    parser = argparse.ArgumentParser(description='Tool to read AOE1 game data files (*.dat)')
+    parser.add_argument('--verbose', '-v', action='count', default=0)
+    subparsers = parser.add_subparsers(help='action to be performed', dest='action', required=True)
+
+    # Extract command
+    parser_extract = subparsers.add_parser('extract', help='Extract data from the game data file')
+    parser_extract.add_argument('data_file', metavar='empires.dat', help='the game data file to read')
+    parser_extract.add_argument('--out', type=str, help='output filename', metavar='empires.yml')
+    parser_extract.set_defaults(func=extract_command)
+
+    args = parser.parse_args()
+
+    # Set log level
+    if args.verbose > 1:
+        log_level = logging.DEBUG
+    elif args.verbose == 1:
+        log_level = logging.INFO
+    else:
+        log_level = logging.WARNING
+    logging.basicConfig(level=log_level)
+
+    # Call requested function
+    args.func(args)
+
+
+if __name__ == "__main__":
+    main()
