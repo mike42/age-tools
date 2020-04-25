@@ -1,0 +1,45 @@
+#!/usr/bin/env python3
+
+import argparse
+import logging
+
+from libage.scenario import scenario, minimap
+
+
+def minimap_command(minimap_args):
+    # Render mini-map from AOE1 scenario file
+    input_filename = minimap_args.scenario
+    output_filename = input_filename + ".png" if minimap_args.out is None else minimap_args.out
+    scenario1 = scenario.load(input_filename)
+    im = minimap.draw(scenario1)
+    im.save(output_filename)
+
+
+if __name__ == "__main__":
+    # General stuff
+    parser = argparse.ArgumentParser(description='Tool to read AOE1 scenario files (*.scn and *.scx)')
+    parser.add_argument('--verbose', '-v', action='count', default=0)
+    subparsers = parser.add_subparsers(help='action to be performed')
+
+    # Minimap command
+    parser_minimap = subparsers.add_parser('minimap', help='render a small image (minimap) of the scenario')
+    parser_minimap.add_argument('scenario', metavar='scenario.scx', help='the scenario file to read')
+    parser_minimap.add_argument('--out', type=str, help='output filename', metavar='scenario.png')
+    parser_minimap.set_defaults(func=minimap_command)
+
+    args = parser.parse_args()
+
+    # Set log level
+    if args.verbose > 1:
+        log_level = logging.DEBUG
+    elif args.verbose == 1:
+        log_level = logging.INFO
+    else:
+        log_level = logging.WARNING
+    logging.basicConfig(level=log_level)
+
+    # Call requested function
+    if 'func' not in args:
+        logging.error("No sub-command specified. Use --help for usage.")
+    else:
+        args.func(args)
