@@ -1,8 +1,8 @@
+from dataclasses import dataclass
 from enum import Enum
 from typing import List
 
 from PIL import Image, ImageDraw
-from attr import dataclass
 
 from libage.scenario.data import ScnDataReader
 from libage.slp.palette import Palette

@@ -4,6 +4,7 @@ from typing import List
 from libage.data.unit import read_unit
 from libage.scenario.data import ScnDataReader
 
+
 @dataclass
 class Civilization:
 

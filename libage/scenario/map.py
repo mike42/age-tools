@@ -1,6 +1,4 @@
-import logging
-
-from attr import dataclass
+from dataclasses import dataclass
 
 from libage.scenario import data
 

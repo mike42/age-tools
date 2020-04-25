@@ -1,6 +1,6 @@
+from dataclasses import dataclass
 from typing import List
 
-from attr import dataclass
 
 @dataclass
 class PalCol:
