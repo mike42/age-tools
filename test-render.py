@@ -1,12 +1,10 @@
 #!/usr/bin/env python3
 
-# Render mini-map from AOE1 scenario file
-
 import logging
 from enum import Enum
 from typing import List
 
-from PIL import Image, ImageDraw
+from PIL import Image
 
 from libage.scenario import scenario
 from libage.scenario.map import ScnMapTile, ScnMap
@@ -18,6 +16,7 @@ class UnderlyingTerrain(Enum):
     WATER = 2
     DEEP_WATER = 3
 
+
 class Direction(Enum):
     NORTH = 0
     NORTH_EAST = 1
@@ -27,6 +26,7 @@ class Direction(Enum):
     SOUTH_WEST = 5
     WEST = 6
     NORTH_WEST = 7
+
 
 def texture_tile_select(x, y, terrain: list):
     return terrain[((x // 2) % 2) + (y % 2)]
@@ -130,12 +130,11 @@ if __name__ == "__main__":
     for i in range(0, 12):
         border_grass_desert.append(Image.open("border/20001_{:03d}.png".format(i)))
 
-
     TILE_WIDTH = 64
     TILE_HEIGHT = 32
 
-    world_width = scenario1['map_scen'].width
-    world_height = scenario1['map_scen'].height
+    world_width = scenario1.map_scen.width
+    world_height = scenario1.map_scen.height
 
     display_width = TILE_WIDTH + (((world_width - 1) + (world_height - 1)) * (TILE_WIDTH // 2))
     display_height = TILE_HEIGHT + (((world_width - 1) + (world_height - 1)) * (TILE_HEIGHT // 2))
@@ -149,7 +148,7 @@ if __name__ == "__main__":
         for world_y in range(0, world_height):
             this_tile_display_x = diamond_left_x + ((TILE_WIDTH // 2) * (world_x + world_y))
             this_tile_display_y = diamond_left_y + ((TILE_HEIGHT // 2) * (world_y - world_x))
-            this_tile = map_get_tile(scenario1['map_scen'], world_x, world_y)
+            this_tile = map_get_tile(scenario1.map_scen, world_x, world_y)
             # Figure out what the base tile would be
             this_tile_terrain_type = base_terrain_select(this_tile)
             if this_tile_terrain_type == UnderlyingTerrain.DEEP_WATER:
@@ -163,7 +162,7 @@ if __name__ == "__main__":
             this_terrain_tile_frame = texture_tile_select(world_x, world_y, this_tile_terrain_frame_list)
             outp.paste(this_terrain_tile_frame, (this_tile_display_x, this_tile_display_y), this_terrain_tile_frame)
             # Paste in any bordering info (some are semi-transparent tiles)
-            neighbours = neighbour_terrain_type(scenario1['map_scen'], world_x, world_y)
+            neighbours = neighbour_terrain_type(scenario1.map_scen, world_x, world_y)
             if this_tile_terrain_type == UnderlyingTerrain.DESERT and UnderlyingTerrain.WATER in neighbours:
                 border_direction = select_border(neighbours, UnderlyingTerrain.WATER)
                 outp.paste(border_desert_water[border_direction], (this_tile_display_x, this_tile_display_y), border_desert_water[border_direction])

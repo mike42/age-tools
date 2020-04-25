@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 import logging
 from dataclasses import dataclass
+from typing import List
 
 from libage.scenario.data import ScnDataReader
-from libage.scenario.map import read_map
+from libage.scenario.map import read_map, ScnMap
 from libage.scenario.scn_header import ScnHeader
 
 
@@ -165,8 +166,8 @@ class ScnGameProperties:
             raise Exception("Not implemented: Don't know how to read player base properties from <1.13 file")
         else:
             for i in range(0, 16):
+                # Ignoring at the moment
                 res = ScnPlayerStartResources.read(data, version)
-                print(res)
 
         if version >= 1.02:
             check5 = data.int32()
@@ -300,7 +301,17 @@ class ScenarioObject:
         )
 
 
-def load(file_name: str):
+@dataclass()
+class ScenarioFile:
+    header: ScnHeader
+    next_object_id: int
+    tribe_scen: ScnGameProperties
+    map_scen: ScnMap
+    world_players: List[WorldPlayer]
+    objects: List[List[ScenarioObject]]
+
+
+def load(file_name: str) -> ScenarioFile:
     if not (file_name.endswith(".scn") or file_name.endswith(".scx")):
         raise Exception("Scenario file must end with .scn or .scx")
     with open(file_name, 'rb') as f:
@@ -326,12 +337,11 @@ def load(file_name: str):
             player_objects.append(obj)
         scenario_objects.append(player_objects)
 
-    return {
-        'filename': file_name,
-        'header': header,
-        'next_object_id': next_object_id,
-        'tribe_scen': tribe_scen,
-        'map_scen': map_scen,
-        'world_players': world_players,
-        'objects': scenario_objects
-    }
+    return ScenarioFile(
+        header,
+        next_object_id,
+        tribe_scen,
+        map_scen,
+        world_players,
+        scenario_objects
+    )

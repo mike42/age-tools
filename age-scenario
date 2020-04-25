@@ -15,17 +15,33 @@ def minimap_command(minimap_args):
     im.save(output_filename)
 
 
-if __name__ == "__main__":
+def info_command(info_args):
+    # Render mini-map from AOE1 scenario file
+    input_filename = info_args.scenario
+    scenario1 = scenario.load(input_filename)
+    print("{}: AOE scenario version {}, {} x {}".format(
+        input_filename,
+        scenario1.header.file_version,
+        scenario1.map_scen.width,
+        scenario1.map_scen.height))
+
+
+def main():
     # General stuff
     parser = argparse.ArgumentParser(description='Tool to read AOE1 scenario files (*.scn and *.scx)')
     parser.add_argument('--verbose', '-v', action='count', default=0)
-    subparsers = parser.add_subparsers(help='action to be performed')
+    subparsers = parser.add_subparsers(help='action to be performed', dest='action', required=True)
 
     # Minimap command
     parser_minimap = subparsers.add_parser('minimap', help='render a small image (minimap) of the scenario')
     parser_minimap.add_argument('scenario', metavar='scenario.scx', help='the scenario file to read')
     parser_minimap.add_argument('--out', type=str, help='output filename', metavar='scenario.png')
     parser_minimap.set_defaults(func=minimap_command)
+
+    # Info command
+    parser_info = subparsers.add_parser('info', help='show information about a scenario file')
+    parser_info.add_argument('scenario', metavar='scenario.scx', help='the scenario file to read')
+    parser_info.set_defaults(func=info_command)
 
     args = parser.parse_args()
 
@@ -39,7 +55,8 @@ if __name__ == "__main__":
     logging.basicConfig(level=log_level)
 
     # Call requested function
-    if 'func' not in args:
-        logging.error("No sub-command specified. Use --help for usage.")
-    else:
-        args.func(args)
+    args.func(args)
+
+
+if __name__ == "__main__":
+    main()
