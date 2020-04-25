@@ -16,6 +16,14 @@ Extract game data to a YAML file. This makes it possible to compare game data fi
 age-gamedata extract empires.dat --out empires.yml
 ```
 
+Extract files from a DRS asset archive to find the "wololo" priest sound:
+
+```
+mkdir sounds
+age-archive extract sounds.drs --directory sounds/
+aplay sounds/5051.wav
+```
+
 ## Attribution
 
 - `dat`, `scn` and `drs` format handling is directly based on [SiegeEngineers/genie-rs](https://github.com/SiegeEngineers/genie-rs).

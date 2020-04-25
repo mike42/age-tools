@@ -1,0 +1,45 @@
+#!/usr/bin/env python3
+import argparse
+import logging
+import sys
+
+from libage.archive import archive
+
+
+def extract_command(extract_args):
+    # Extract files from AOE1 DRS archive
+    input_filename = extract_args.archive_file
+    output_directory = extract_args.directory
+    archive.load(input_filename, True, output_directory)
+
+
+def main():
+    # General stuff
+    parser = argparse.ArgumentParser(description='Tool to read AOE1 asset archives (*.drs)')
+    parser.add_argument('--verbose', '-v', action='count', default=0)
+    subparsers = parser.add_subparsers(help='action to be performed', dest='action', required=True)
+
+    # Extract command
+    parser_extract = subparsers.add_parser('extract', help='Extract files from the archive')
+    parser_extract.add_argument('archive_file', metavar='graphics.drs', help='the archive_file to extract')
+    parser_extract.add_argument('--directory', type=str, help='output directory', default='.')
+    parser_extract.set_defaults(func=extract_command)
+
+    args = parser.parse_args()
+
+    # Set log level
+    if args.verbose > 1:
+        log_level = logging.DEBUG
+    elif args.verbose == 1:
+        log_level = logging.INFO
+    else:
+        log_level = logging.WARNING
+    logging.basicConfig(level=log_level)
+
+    # Call requested function
+    args.func(args)
+
+
+
+if __name__ == "__main__":
+    main()

@@ -76,18 +76,25 @@ class DRSResources:
         return DRSResources(resources)
 
 
-def load(file_name: str):
+@dataclass
+class ArchiveFile:
+    header: DRSHeader
+    tables: List[DRSTable]
+    resources: List[DRSResources]
+
+
+def load(file_name: str, extract: bool = False, extract_dir: str = '.'):
     if not (file_name.endswith(".drs")):
         raise Exception("Game asset archive must end with .drs")
 
     with open(file_name, 'rb') as f:
-        print("Reading {}".format(file_name))
+        logging.info("Reading {}".format(file_name))
         all_data_bytes = f.read()
         data = ScnDataReader(all_data_bytes)
         header = DRSHeader.read(data)
         logging.debug(header)
 
-        print("File has {} tables".format(header.num_tables))
+        logging.info("File has {} tables".format(header.num_tables))
         tables = []
         for i in range(0, header.num_tables):
             table = DRSTable.read(data)
@@ -105,6 +112,13 @@ def load(file_name: str):
                 resource_start = resource.offset
                 resource_end = resource.offset + resource.size
                 resource_content = all_data_bytes[resource_start:resource_end]
-                resource_fn = ("{}.{}".format(resource.id, table.resource_type.to_fileext()))
-                print("Writing {}".format(resource_fn))
-                open(resource_fn, 'wb').write(resource_content)
+                if extract:
+                    resource_fn = ("{}/{}.{}".format(extract_dir, resource.id, table.resource_type.to_fileext()))
+                    logging.info("Writing {}".format(resource_fn))
+                    open(resource_fn, 'wb').write(resource_content)
+
+    return ArchiveFile(
+        header,
+        tables,
+        table_resource_lists
+    )
