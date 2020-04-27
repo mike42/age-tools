@@ -24,6 +24,15 @@ age-archive extract sounds.drs --directory sounds/
 aplay sounds/5051.wav
 ```
 
+Render the Babylonian-style Wonder as a PNG image as player 3 (yellow):
+
+```
+mkdir graphics interfac output/
+age-archive extract --directory interfac Interfac.drs
+age-archive extract --directory graphics graphics.drs
+age-slp extract graphics/177.slp --palette interfac/50500.bin --player 3 --directory output/
+```
+
 ## Attribution
 
 - `dat`, `scn` and `drs` format handling is directly based on [SiegeEngineers/genie-rs](https://github.com/SiegeEngineers/genie-rs).

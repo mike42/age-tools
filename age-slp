@@ -1,0 +1,54 @@
+#!/usr/bin/env python3
+import argparse
+import logging
+import sys
+from pathlib import Path
+
+from libage.slp import slp, palette
+
+
+def extract_command(extract_args):
+    # Extract frames from AOE1 SLP file
+    pal = palette.load(extract_args.palette)
+    sprite = slp.load(extract_args.slp_file)
+    output_dir = extract_args.directory
+    frames = range(0, len(sprite.frames)) if extract_args.frame is None else [extract_args.frame]
+    player_id = 1 if extract_args.player is None else extract_args.player
+    file_base = Path(extract_args.slp_file).stem
+    for i in frames:
+        im = slp.draw(sprite, pal, player_id=player_id, frame_id=i)
+        im.save("{}/{}_{:03d}.png".format(output_dir, file_base, i))
+
+
+def main():
+    # General stuff
+    parser = argparse.ArgumentParser(description='Tool to read AOE1 graphics files (*.slp)')
+    parser.add_argument('--verbose', '-v', action='count', default=0)
+    subparsers = parser.add_subparsers(help='action to be performed', dest='action', required=True)
+
+    # Extract command
+    parser_extract = subparsers.add_parser('extract', help='Extract frames from the image')
+    parser_extract.add_argument('slp_file', metavar='100000.drs', help='the slp file to read')
+    parser_extract.add_argument('--directory', type=str, help='output directory', default='.')
+    parser_extract.add_argument('--frame', type=int, help='frame number')
+    parser_extract.add_argument('--player', type=int, help='frame number')
+    parser_extract.add_argument('--palette', type=str, help='palette to use for rendering', default='50500.bin')
+
+    parser_extract.set_defaults(func=extract_command)
+
+    args = parser.parse_args()
+
+    # Set log level
+    if args.verbose > 1:
+        log_level = logging.DEBUG
+    elif args.verbose == 1:
+        log_level = logging.INFO
+    else:
+        log_level = logging.WARNING
+    logging.basicConfig(level=log_level)
+
+    # Call requested function
+    args.func(args)
+
+if __name__ == "__main__":
+    main()
