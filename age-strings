@@ -1,0 +1,41 @@
+#!/usr/bin/env python3
+
+import argparse
+import logging
+
+from libage.language_file import resource_strings
+
+
+def extract_command(extract_args):
+    strings = resource_strings.load(extract_args.dll_file)
+    print("\n".join(["{}\t{}".format(x['id'], x['val']) for x in strings]))
+
+
+def main():
+    # General stuff
+    parser = argparse.ArgumentParser(description='Tool to read strings from AOE1 language files (language.dll)')
+    parser.add_argument('--verbose', '-v', action='count', default=0)
+    subparsers = parser.add_subparsers(help='action to be performed', dest='action', required=True)
+
+    # Extract command
+    parser_extract = subparsers.add_parser('extract', help='Extract strings from DLL')
+    parser_extract.add_argument('dll_file', metavar='language.dll', help='the DLL file to read')
+    parser_extract.set_defaults(func=extract_command)
+
+    args = parser.parse_args()
+
+    # Set log level
+    if args.verbose > 1:
+        log_level = logging.DEBUG
+    elif args.verbose == 1:
+        log_level = logging.INFO
+    else:
+        log_level = logging.WARNING
+    logging.basicConfig(level=log_level)
+
+    # Call requested function
+    args.func(args)
+
+
+if __name__ == "__main__":
+    main()
