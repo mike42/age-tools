@@ -5,7 +5,7 @@ import logging
 
 import yaml
 
-from libage.data import game_data
+from libage.gamedata import game_data
 
 
 def extract_command(extract_args):

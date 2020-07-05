@@ -2,18 +2,18 @@ from dataclasses import dataclass
 from typing import List
 
 
-from libage.data import technology, civilization, effect, random_map, terrain, terrain_border, sprite, sound, \
+from libage.gamedata import technology, civilization, effect, random_map, terrain, terrain_border, sprite, sound, \
     color_table, terrain_table
-from libage.data.civilization import Civilization
-from libage.data.color_table import ColorTable
-from libage.data.effect import Effect
-from libage.data.random_map import RandomMapListWrapper
-from libage.data.sound import Sound
-from libage.data.sprite import Sprite
-from libage.data.technology import Technology
-from libage.data.terrain import Terrain
-from libage.data.terrain_border import TerrainBorder
-from libage.data.terrain_table import TerrainTable
+from libage.gamedata.civilization import Civilization
+from libage.gamedata.color_table import ColorTable
+from libage.gamedata.effect import Effect
+from libage.gamedata.random_map import RandomMapListWrapper
+from libage.gamedata.sound import Sound
+from libage.gamedata.sprite import Sprite
+from libage.gamedata.technology import Technology
+from libage.gamedata.terrain import Terrain
+from libage.gamedata.terrain_border import TerrainBorder
+from libage.gamedata.terrain_table import TerrainTable
 
 from libage.scenario.data import ScnDataReader
 

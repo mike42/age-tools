@@ -1,13 +1,10 @@
-#!/usr/bin/env python3
-
-import logging
 from enum import Enum
 from typing import List
 
 from PIL import Image
 
-from libage.scenario import scenario
 from libage.scenario.map import ScnMapTile, ScnMap
+from libage.scenario.scenario import ScenarioFile
 
 
 class UnderlyingTerrain(Enum):
@@ -104,10 +101,7 @@ def select_border(neighbours: List[UnderlyingTerrain], check: UnderlyingTerrain)
     return 0
 
 
-if __name__ == "__main__":
-    logging.basicConfig(level=logging.DEBUG)
-    scenario1 = scenario.load('aoe1_ror_inland_tiny_random.scx')
-
+def draw(scenario1: ScenarioFile):
     # Some terrains
     grass = []
     water = []
@@ -170,21 +164,4 @@ if __name__ == "__main__":
                 border_direction = select_border(neighbours, UnderlyingTerrain.DESERT)
                 outp.paste(border_grass_desert[border_direction], (this_tile_display_x, this_tile_display_y), border_grass_desert[border_direction])
 
-    # Just checking type IDs
-    # how_common_is = {}
-    # for player_id in range(0, len(scenario1['objects'])):
-    #     for object in scenario1['objects'][player_id]:
-    #         if object.type_id not in how_common_is:
-    #             how_common_is[object.type_id] = 0
-    #         how_common_is[object.type_id] = how_common_is[object.type_id] + 1
-    # for w in sorted(how_common_is, key=how_common_is.get, reverse=True):
-    #     print(w, how_common_is[w])
-
-    # for file in sys.argv[1:]:
-    #
-    #     w_tiles = scenario1['map_scen'].width
-    #     h_tiles = scenario1['map_scen'].height
-    #     print(w_tiles)
-    #     print(h_tiles)
-
-    outp.save('foo.png')
+    return outp

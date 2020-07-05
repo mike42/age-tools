@@ -3,10 +3,29 @@ import logging
 import struct
 import zlib
 
+class ScnDataWriter:
+    """
+    Work in progress, this will be for writing out files
+    """
+    def __init__(self):
+        pass
+
+    def compress(self):
+        """
+        Start writing to compressed data segment
+        """
+        pass
+
+    def done(self):
+        # Compress the compressed data segment
+        # Write uncompressed data
+        # Write compressed data
+        pass
+
 
 class ScnDataReader:
     """
-    Wrap all I/O operations to the SCN file
+    Wrap all I/O read operations to the SCN file
     """
 
     def __init__(self, data):
@@ -15,53 +34,52 @@ class ScnDataReader:
         self.byteio = io.BytesIO(data)
 
     def read(self, size=None):
-        if size != None:
+        if size is not None:
             self.bytes_read_since_mark = self.bytes_read_since_mark + size
         ret = self.byteio.read(size)
-        if size != None and size != len(ret):
+        if size is not None and size != len(ret):
             raise Exception("Unexpected end of file")
         return ret
 
     def uint8(self, debug=None):
         ret = int.from_bytes(self.read(1), byteorder='little', signed=False)
-        if debug != None:
+        if debug is not None:
             logging.debug("Read uint8 %s='%d'", debug, ret)
         return ret
 
     def int8(self, debug=None):
         ret = int.from_bytes(self.read(1), byteorder='little', signed=True)
-        if debug != None:
+        if debug is not None:
             logging.debug("Read uint8 %s='%d'", debug, ret)
         return ret
 
-
     def uint16(self, debug=None):
-        ret =  int.from_bytes(self.read(2), byteorder='little', signed=False)
-        if debug != None:
+        ret = int.from_bytes(self.read(2), byteorder='little', signed=False)
+        if debug is not None:
             logging.debug("Read uint16 %s='%d'", debug, ret)
         return ret
 
     def int16(self, debug=None):
-        ret =  int.from_bytes(self.read(2), byteorder='little', signed=True)
-        if debug != None:
+        ret = int.from_bytes(self.read(2), byteorder='little', signed=True)
+        if debug is not None:
             logging.debug("Read int16 %s='%d'", debug, ret)
         return ret
 
     def uint32(self, debug=None):
-        ret =  int.from_bytes(self.read(4), byteorder='little', signed=False)
-        if debug != None:
+        ret = int.from_bytes(self.read(4), byteorder='little', signed=False)
+        if debug is not None:
             logging.debug("Read uint32 %s='%d'", debug, ret)
         return ret
 
     def int32(self, debug=None):
-        ret =  int.from_bytes(self.read(4), byteorder='little', signed=True)
-        if debug != None:
+        ret = int.from_bytes(self.read(4), byteorder='little', signed=True)
+        if debug is not None:
             logging.debug("Read int32 %s='%d'", debug, ret)
         return ret
 
     def float32(self, debug=None):
         ret = struct.unpack('f', self.read(4))[0]
-        if debug != None:
+        if debug is not None:
             logging.debug("Read float32 %s='%f'", debug, ret)
         return ret
 
@@ -70,7 +88,7 @@ class ScnDataReader:
         Fixed-length string dropping anything after the null.
         """
         ret = self.stop_at_null(self.read(size).decode('ascii'))
-        if debug != None:
+        if debug is not None:
             logging.debug("Read string %s='%s'", debug, ret)
         return ret
 
@@ -109,11 +127,14 @@ class ScnDataReader:
         return ret
 
     def decompress(self):
+        """
+        De-compress remaining data
+        """
         compressed_data = self.byteio.read()
         decompressed_data = zlib.decompress(compressed_data, wbits=-15)
         self.byteio = io.BytesIO(decompressed_data)
 
-    def mark(self, name, limit = None):
+    def mark(self, name, limit=None):
         """
         Mark the beginning of a fixed-length block of data. We count how many bytes we are
         asked to read from here (may eg. include variable-length fields), and check this
