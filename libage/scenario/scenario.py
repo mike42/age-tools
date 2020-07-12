@@ -38,11 +38,11 @@ def load(file_name: str) -> ScenarioFile:
         # Assume DE scenario
         tribe_scen = ScnGameProperties.read_de(data)
         map_scen = ScnMap.read(data)
-        num_players = data.uint32()
 
+        num_players = data.uint32(debug='num_players')
         world_players = []
         for i in range(1, num_players):
-            world_player = WorldPlayer.read_de(data)
+            world_player = WorldPlayer.read_de(data, tribe_scen.base.rge_version)
             world_players.append(world_player)
 
         scenario_objects = []
@@ -53,8 +53,8 @@ def load(file_name: str) -> ScenarioFile:
                 obj = ScenarioObject.read_de(data)
                 player_objects.append(obj)
             scenario_objects.append(player_objects)
+
         scn_unknown_data_structure.skip(data)
-        data.done()
 
         return ScenarioFile(
             header,
@@ -86,7 +86,7 @@ def load(file_name: str) -> ScenarioFile:
             scenario_objects.append(player_objects)
 
         scn_unknown_data_structure.skip(data)
-        data.done()
+
         return ScenarioFile(
             header,
             next_object_id,

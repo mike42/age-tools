@@ -129,7 +129,7 @@ class ScnGameProperties:
                 # TODO read these ???
                 data.read(60)
 
-        check3 = data.int32(debug='check value 2')
+        check3 = data.int32(debug='check value 3')
         if check3 != -99:
             raise Exception("Check value did not match in scenario data, giving up")
 

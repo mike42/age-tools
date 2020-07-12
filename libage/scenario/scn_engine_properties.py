@@ -107,14 +107,15 @@ class ScnEngineProperties:
     def read_de(data: ScnDataReader):
         version = data.float32(debug='version')
 
-        # rge_scen data
         for i in range(0, 16):
             data.uint16(debug='some number here')  # 2656
             data.string16(debug='player tribe name')
 
-        for i in range(0, 16):
-            # Guessing its a string ref, have not checked
-            data.int32(debug="unknown_string_ref for player {}".format(i))
+        if version >= 3.13:
+            # These 16 bytes are not present in some DE scenarios bundled w/ the game, labelled version 3.125.
+            for i in range(0, 16):
+                # Guessing its a string ref, have not checked
+                data.int32(debug="unknown_string_ref for player {}".format(i))
 
         for i in range(0, 16):
             player_base_props = ScnPlayerBaseProperties.read(data)
@@ -202,6 +203,14 @@ class ScnEngineProperties:
         check1 = data.int32(debug='check value 1')
         if check1 != -99:
             raise Exception("Check value did not match in scenario data, giving up")
+
+        if version < 3.13:
+            data.mark('extra data observed in 3.125 version')
+            for i in range(0, 32):
+                data.int32(debug='unknown value 1 {}'.format(i))  # 500
+            for i in range(0, 32):
+                data.int32(debug='unknown value 2 {}'.format(i))  # 0
+
         check2 = data.int32(debug='check value 2')
         if check2 != -99:
             raise Exception("Check value did not match in scenario data, giving up")

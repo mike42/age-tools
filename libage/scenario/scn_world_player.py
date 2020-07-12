@@ -26,13 +26,13 @@ class WorldPlayer:
         )
 
     @staticmethod
-    def read_de(data: ScnDataReader):
+    def read_de(data: ScnDataReader, player_version: float):
         return WorldPlayer(
-            data.float32(),
-            data.float32(),
-            data.float32(),
-            data.float32(),
+            data.float32(debug='food'),
+            data.float32(debug='wood'),
+            data.float32(debug='gold'),
+            data.float32(debug='stone'),
             0,
             0,
-            data.float32()
+            data.float32(debug='population') if player_version >= 3.13 else 75.0
         )
