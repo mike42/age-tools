@@ -183,6 +183,23 @@ def depth_of(x, y, tiles, width, default):
 
 
 def draw(scenario: ScenarioFile):
+    # Approximate mappings for new terrain IDs that appear on DE maps
+    minimap_terrain_colors[23] = minimap_terrain_colors[0]  # grass
+    minimap_terrain_colors[24] = minimap_terrain_colors[0]
+    minimap_terrain_colors[25] = minimap_terrain_colors[0]
+    minimap_terrain_colors[26] = minimap_terrain_colors[6]  # sand
+    minimap_terrain_colors[27] = minimap_terrain_colors[6]
+    minimap_terrain_colors[28] = minimap_terrain_colors[6]
+    minimap_terrain_colors[29] = minimap_terrain_colors[0]  # grass
+    minimap_terrain_colors[30] = minimap_terrain_colors[0]
+    minimap_terrain_colors[31] = minimap_terrain_colors[6]  # dirt
+    minimap_terrain_colors[32] = minimap_terrain_colors[6]
+    minimap_terrain_colors[33] = minimap_terrain_colors[6]
+    minimap_terrain_colors[34] = minimap_terrain_colors[6]
+    minimap_terrain_colors[35] = minimap_terrain_colors[19]  # forest
+    minimap_terrain_colors[36] = minimap_terrain_colors[20]
+    minimap_terrain_colors[37] = minimap_terrain_colors[19]
+
     map = scenario.map_scen
     outp = Image.new('RGBA', (map.width, map.height), (255, 255, 255, 0))
     draw = ImageDraw.Draw(outp)

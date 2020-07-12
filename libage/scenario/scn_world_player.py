@@ -14,7 +14,7 @@ class WorldPlayer:
     population: float
 
     @staticmethod
-    def read(data: ScnDataReader, player_version: float):
+    def read_classic(data: ScnDataReader, player_version: float):
         return WorldPlayer(
             data.float32() if player_version > 1.06 else 200.0,
             data.float32() if player_version > 1.06 else 200.0,
@@ -23,4 +23,16 @@ class WorldPlayer:
             data.float32() if player_version > 1.12 else 100.0,
             data.float32() if player_version > 1.12 else 0.0,
             data.float32() if player_version > 1.14 else 75.0,
+        )
+
+    @staticmethod
+    def read_de(data: ScnDataReader):
+        return WorldPlayer(
+            data.float32(),
+            data.float32(),
+            data.float32(),
+            data.float32(),
+            0,
+            0,
+            data.float32()
         )

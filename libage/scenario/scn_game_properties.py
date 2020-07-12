@@ -11,8 +11,8 @@ class ScnGameProperties:
     base: ScnEngineProperties
 
     @staticmethod
-    def read(data: ScnDataReader):
-        base = ScnEngineProperties.read(data)
+    def read_classic(data: ScnDataReader):
+        base = ScnEngineProperties.read_classic(data)
         version = base.rge_version
         if version <= 1.13:
             for i in range(0, 16):
@@ -100,6 +100,63 @@ class ScnGameProperties:
 
         if version >= 1.21:
             raise Exception("Not implemented: Don't know how to read base priorities from >=1.21 file")
+
+        game_properties = ScnGameProperties(
+            base
+        )
+        logging.debug(game_properties)
+        return game_properties
+
+    @staticmethod
+    def read_de(data: ScnDataReader):
+        base = ScnEngineProperties.read_de(data)
+
+        # expecting global victory conditions around here somewhere
+        for i in range(0, 8):
+            data.uint32(debug='unknown value a {}'.format(i))
+        data.uint32(debug='unknown value b')  # 900
+        data.uint32(debug='unknown value c')  # 9000
+
+        # expecting diplomacy
+        for i in range(0, 16):
+            for j in range(0, 16):
+                val = data.uint32()
+                logging.debug("Unknown value from=%d to=%d val=%d", i, j, val)  # lots of '3'.
+
+        # expecting 12 individual victory conditions for each player
+        for i in range(0, 16):
+            for j in range(0, 12):
+                # TODO read these ???
+                data.read(60)
+
+        check3 = data.int32(debug='check value 2')
+        if check3 != -99:
+            raise Exception("Check value did not match in scenario data, giving up")
+
+        # Probably allied victory
+        for i in range(0, 16):
+            data.uint32(debug='allied victory player {}'.format(i))
+
+        # disabled tech
+        for i in range(0, 16):
+            for j in range(0, 20):
+                disabled_tech_id = data.uint32()
+                logging.debug("Disabled tech player %d, position %d: %d", i, j, disabled_tech_id)
+
+        data.uint32(debug='unknown field 1')
+        data.uint32(debug='unknown field 2')
+        data.uint32(debug='unknown field 3')  # might be full tech tree
+
+        for j in range(0, 16): # maybe ?
+            data.uint32(debug='starting age player {}'.format(j))
+
+        check4 = data.int32(debug='check value 2')
+        if check4 != -99:
+            raise Exception("Check value did not match in scenario data, giving up")
+
+        # view ?
+        data.float32()
+        data.float32()
 
         game_properties = ScnGameProperties(
             base

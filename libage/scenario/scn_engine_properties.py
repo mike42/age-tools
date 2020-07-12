@@ -10,7 +10,7 @@ class ScnEngineProperties:
     rge_version: float
 
     @staticmethod
-    def read(data: ScnDataReader):
+    def read_classic(data: ScnDataReader):
         version = data.float32(debug='version')
         if version > 1.13:
             for i in range(0, 16):
@@ -96,6 +96,115 @@ class ScnEngineProperties:
             check4 = data.int32()
             if check4 != -99:
                 raise Exception("Check value did not match in scenario data, giving up")
+
+        rge_scen = ScnEngineProperties(
+            version
+        )
+        logging.debug(rge_scen)
+        return rge_scen
+
+    @staticmethod
+    def read_de(data: ScnDataReader):
+        version = data.float32(debug='version')
+
+        # rge_scen data
+        for i in range(0, 16):
+            data.uint16(debug='some number here')  # 2656
+            data.string16(debug='player tribe name')
+
+        for i in range(0, 16):
+            # Guessing its a string ref, have not checked
+            data.int32(debug="unknown_string_ref for player {}".format(i))
+
+        for i in range(0, 16):
+            player_base_props = ScnPlayerBaseProperties.read(data)
+            logging.debug(player_base_props)
+
+        data.boolean32(debug='conquest maybe')
+        data.float32(debug='probable check field')
+
+        data.uint8(debug='unknown field')
+
+        data.uint16(debug='some number here')  # 2656
+        data.string16(debug='scenario_name')
+
+        data.uint16(debug='some number here')  # 2656
+        data.string16(debug='scenario_instructions')
+
+        data.uint16(debug='some number here')  # 2656
+        data.string16(debug='history_string')
+
+        data.uint16(debug='some number here')  # 2656
+        data.string16(debug='victory_string')
+
+        data.uint16(debug='some number here')  # 2656
+        data.string16(debug='loss_string')
+
+        data.uint16(debug='some number here')  # 2656
+        data.string16(debug='history_string')
+
+        data.int32(debug='instructions_string_reference')
+        data.uint16(debug='some_number_here')  # 2656
+        data.string16(debug='instructions_vox')
+
+        data.int32(debug='hints_string_reference')
+        data.uint16(debug='some_number_here')  # 2656
+        data.string16(debug='hints_vox')
+
+        data.int32(debug='victory_string_reference')
+        data.uint16(debug='some_number_here')  # 2656
+        data.string16(debug='victory_vox')
+
+        data.int32(debug='loss_string_reference')
+        data.uint16(debug='some_number_here')  # 2656
+        data.string16(debug='loss_vox')
+
+        data.int32(debug='history_string_reference')
+        data.uint16(debug='some_number_here')  # 2656
+        data.string16(debug='history_vox')
+
+        # Not sure if cinematics or per-player personality, AI, city plans etc
+
+        data.uint16(debug='some_number_here')  # 2656
+        data.string16(debug='unidentified_string 1')  # ' <None> '
+
+        data.uint16(debug='some_number_here')  # 2656
+        data.string16(debug='unidentified_string 2')  # ' <None> '
+
+        data.uint16(debug='some_number_here')  # 2656
+        data.string16(debug='unidentified_string 3')  # ' <None> '
+
+        data.uint16(debug='some_number_here')  # 2656
+        data.string16(debug='unidentified_string 4')  # ' <None> '
+
+        data.uint32(debug='unidentified number 1')  # 0
+        data.uint32(debug='unidentified number 2')  # 0
+        data.uint32(debug='unidentified number 3')  # 0
+        data.uint16(debug='unidentified number 4')  # 1
+
+        for i in range(0, 16):
+            data.string16(debug="ai player {}".format(i))
+
+        for i in range(0, 16):
+            data.string16(debug="city plan player {}".format(i))
+
+        for i in range(0, 16):
+            data.string16(debug="personality player {}".format(i))
+
+        for i in range(0, 16):
+            some_length1 = data.uint32(debug='some length maybe')
+            some_length2 = data.uint32(debug='some length maybe')
+            some_length3 = data.uint32(debug='some length maybe')
+            data.string_fixed(some_length1, debug='some string 1')
+            data.string_fixed(some_length2, debug='some string 2')
+            data.string_fixed(some_length3, debug='some string 3')
+
+        check1 = data.int32(debug='check value 1')
+        if check1 != -99:
+            raise Exception("Check value did not match in scenario data, giving up")
+        check2 = data.int32(debug='check value 2')
+        if check2 != -99:
+            raise Exception("Check value did not match in scenario data, giving up")
 
         rge_scen = ScnEngineProperties(
             version

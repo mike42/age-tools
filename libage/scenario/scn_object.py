@@ -14,7 +14,7 @@ class ScenarioObject:
     garrisoned_in:  int
 
     @staticmethod
-    def read(data: ScnDataReader, file_version: float):
+    def read_classic(data: ScnDataReader, file_version: float):
         return ScenarioObject(
             (data.float32(), data.float32(), data.float32()),
             data.uint32(),
@@ -24,4 +24,16 @@ class ScenarioObject:
             # Not used in AOE1
             -1 if file_version < 1.15 else data.uint16(),
             -1 if file_version < 1.13 else data.uint32()
+        )
+
+    @staticmethod
+    def read_de(data: ScnDataReader):
+        return ScenarioObject(
+            (data.float32(), data.float32(), data.float32()),
+            data.uint32(),
+            data.uint16(),
+            data.uint8(),
+            data.float32(),
+            -1,
+            -1
         )

@@ -18,32 +18,43 @@ class ScnHeader:
         # Load header
         file_version = data.string_fixed(size=4)
         file_version_float = float(file_version)
-        data.mark(name='SCN header', limit=data.uint32())  # header size
-        if file_version_float > 3:
+        header_size = data.uint32();
+        data.mark(name='SCN header', limit=header_size)  # header size
+        header_version = data.uint32(debug='header_version')
+
+        if header_version >= 3:
             # DE scenario a bit different
-            unknown_field_1 = data.uint32(debug='unknown_field_1')  # eg. 3
             timestamp = data.uint32(debug='Timestamp maybe')
-            unknown_field_2 = data.uint16(debug='unknown_field_2')  # eg. 2656
+            string_marker = data.uint16(debug='string_marker')  # always 2656
             description = data.string16(debug='description')
+            # Data sometimes here sometimes not. Need to check remaining bytes in header size to see if we can read it.
+            if header_size - data.bytes_read_since_mark >= 8:
+                # might not account for all possibilities for these fields
+                has_single_player_victory_condition = data.boolean32()
+                player_count = data.uint32()
+            else:
+                has_single_player_victory_condition = False
+                player_count = -1
             scenario_header = ScnHeader(
                 file_version=file_version_float,
-                header_version=0,
+                header_version=header_version,
                 timestamp=timestamp,
                 description=description,
-                has_singleplayer_victory_condition=False,
-                player_count=0
+                has_singleplayer_victory_condition=has_single_player_victory_condition,
+                player_count=player_count
             )
         else:
+            timestamp = data.uint32(debug='timestamp')
             scenario_header = ScnHeader(
                 file_version=file_version_float,
-                header_version=data.uint32(),
-                timestamp=data.uint32(),
+                header_version=header_version,
+                timestamp=timestamp,
                 description=data.string32(),
                 has_singleplayer_victory_condition=data.boolean32(),
                 player_count=data.uint32()
             )
-        data.unmark()
         logging.debug(scenario_header)
+        data.unmark()
         data.decompress()
 
         return scenario_header
