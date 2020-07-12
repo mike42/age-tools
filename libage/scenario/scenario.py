@@ -3,26 +3,13 @@ import logging
 from dataclasses import dataclass
 from typing import List
 
+from libage.scenario import scn_unknown_data_structure
 from libage.scenario.data import ScnDataReader
+from libage.scenario.experimental_de_data import experimental_parse_de_scenario
 from libage.scenario.map import read_map, ScnMap
 from libage.scenario.scn_header import ScnHeader
-
-
-@dataclass
-class ScnPlayerBaseProperties:
-    active: int
-    player_type: int
-    civilization: int
-    posture: int
-
-    @staticmethod
-    def read(data: ScnDataReader):
-        return ScnPlayerBaseProperties(
-            data.uint32(),
-            data.uint32(),
-            data.uint32(),
-            data.uint32()
-        )
+from libage.scenario.scn_object import ScenarioObject
+from libage.scenario.scn_player_base_properties import ScnPlayerBaseProperties
 
 
 @dataclass
@@ -58,7 +45,7 @@ class ScnEngineProperties:
 
 
 def read_rge_scen(data):
-    version = data.float32()
+    version = data.float32(debug='version')
     if version > 1.13:
         for i in range(0, 16):
             # skip past player names
@@ -253,7 +240,7 @@ class ScnGameProperties:
         return game_properties
 
 
-@dataclass()
+@dataclass
 class WorldPlayer:
     food: float
     wood: float
@@ -276,32 +263,7 @@ class WorldPlayer:
         )
 
 
-@dataclass()
-class ScenarioObject:
-    position: tuple
-    id: int
-    type_id: int
-    state: int
-    angle: float
-    frame: int
-    garrisoned_in:  int
-
-    @staticmethod
-    def read(data: ScnDataReader, file_version: str):
-        file_version_flt = float(file_version)
-        return ScenarioObject(
-            (data.float32(), data.float32(), data.float32()),
-            data.uint32(),
-            data.uint16(),
-            data.uint8(),
-            data.float32(),
-            # Not used in AOE1
-            -1 if file_version_flt < 1.15 else data.uint16(),
-            -1 if file_version_flt < 1.13 else data.uint32()
-        )
-
-
-@dataclass()
+@dataclass
 class ScenarioFile:
     header: ScnHeader
     next_object_id: int
@@ -311,13 +273,22 @@ class ScenarioFile:
     objects: List[List[ScenarioObject]]
 
 
-def load(file_name: str) -> ScenarioFile:
-    if not (file_name.endswith(".scn") or file_name.endswith(".scx")):
-        raise Exception("Scenario file must end with .scn or .scx")
+def reader_for(file_name):
+    if not (file_name.lower().endswith(".scn") or file_name.lower().endswith(".scx") or file_name.lower().endswith(".aoescn")):
+        raise Exception("Scenario file must end with .scn, .scx or .aoescn")
     with open(file_name, 'rb') as f:
         # Read entire file
         data = ScnDataReader(f.read())
+    return data
+
+
+def load(file_name: str) -> ScenarioFile:
+    data = reader_for(file_name)
     header = ScnHeader.read(data)
+    if header.file_version > 3:
+        logging.warning("AOE DE Scenarios are not supported")
+        experimental_parse_de_scenario(data, header)
+        raise Exception("Cannot read this version of scenario files")
     next_object_id = data.uint32()
     tribe_scen = ScnGameProperties.read(data)
     map_scen = read_map(data)
@@ -337,6 +308,8 @@ def load(file_name: str) -> ScenarioFile:
             player_objects.append(obj)
         scenario_objects.append(player_objects)
 
+    scn_unknown_data_structure.skip(data)
+    data.done()
     return ScenarioFile(
         header,
         next_object_id,
@@ -345,3 +318,11 @@ def load(file_name: str) -> ScenarioFile:
         world_players,
         scenario_objects
     )
+
+
+def decompress(file_name: str, new_file_name: str):
+    data = reader_for(file_name)
+    header = ScnHeader.read(data)
+    with open(new_file_name, 'wb') as f:
+        f.write(data.read())
+

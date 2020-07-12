@@ -25,7 +25,7 @@ def minimap_command(minimap_args):
 
 
 def info_command(info_args):
-    # Render mini-map from AOE1 scenario file
+    # Parse and show info about scenario file only
     input_filename = info_args.scenario
     scenario1 = scenario.load(input_filename)
     print("{}: AOE scenario version {}, {} x {}".format(
@@ -33,6 +33,13 @@ def info_command(info_args):
         scenario1.header.file_version,
         scenario1.map_scen.width,
         scenario1.map_scen.height))
+
+
+def decompress_command(decompress_args):
+    # Extract decompressed segment of scenario file
+    input_filename = decompress_args.scenario
+    output_filename = input_filename + ".dat" if decompress_args.out is None else decompress_args.out
+    scenario1 = scenario.decompress(input_filename, output_filename)
 
 
 def main():
@@ -47,7 +54,7 @@ def main():
     parser_minimap.add_argument('--out', type=str, help='output filename', metavar='scenario.png')
     parser_minimap.set_defaults(func=minimap_command)
 
-    # Minimap command
+    # Render command
     parser_minimap = subparsers.add_parser('render', help='render a full-size image of the scenario (work in '
                                                           'progress). Expects PNG versions of all terrain and border '
                                                           'graphics to exist in the form "terrain/15001_001.png", '
@@ -61,6 +68,13 @@ def main():
     parser_info = subparsers.add_parser('info', help='show information about a scenario file')
     parser_info.add_argument('scenario', metavar='scenario.scx', help='the scenario file to read')
     parser_info.set_defaults(func=info_command)
+
+    # Decompress command
+    parser_decompress = subparsers.add_parser('decompress', help='extract the compressed section of a scenario file '
+                                                                 'for debugging')
+    parser_decompress.add_argument('scenario', metavar='scenario.scx', help='the scenario file to read')
+    parser_decompress.add_argument('--out', type=str, help='output filename', metavar='scenario.dat')
+    parser_decompress.set_defaults(func=decompress_command)
 
     args = parser.parse_args()
 

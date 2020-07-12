@@ -3,6 +3,7 @@ import logging
 import struct
 import zlib
 
+
 class ScnDataWriter:
     """
     Work in progress, this will be for writing out files
@@ -146,9 +147,9 @@ class ScnDataReader:
 
     def unmark(self):
         if self.bytes_read_since_mark != self.mark_info['limit']:
-            raise "The structure {} has length {}, but we read {}".format(self.mark_info['name'],
+            raise Exception("The structure {} has length {}, but we read {}".format(self.mark_info['name'],
                                                                           self.mark_info['limit'],
-                                                                          self.bytes_read_since_mark)
+                                                                          self.bytes_read_since_mark))
 
     def done(self):
         remainder = self.byteio.read()
