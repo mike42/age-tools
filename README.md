@@ -37,4 +37,5 @@ age-slp extract graphics/177.slp --palette interfac/50500.bin --player 3 --direc
 
 - `dat`, `scn` and `drs` format handling is directly based on [SiegeEngineers/genie-rs](https://github.com/SiegeEngineers/genie-rs).
 - SLP file format handling is based on the description at [SFTtech/openage](https://github.com/blob/9f13a91184e16af761fd9b654ff66cb3665261dd/doc/media/slp-files.md)
+- RMS parsing is based on the description in the [Random Map Scripting Guide](http://aok.heavengames.com/blacksmith/showfile.php?fileid=12178) by Bultro and Zetnus.
 
