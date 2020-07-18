@@ -155,8 +155,8 @@ minimap_object_colors = {
 
 
 minimap_object_hide = [
-    162, # Double flag
-    330 # Flag
+    162,  # Double flag
+    330  # Flag
 ]
 
 
