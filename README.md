@@ -1,4 +1,4 @@
-# age-tools
+# age-tools [![Build Status](https://travis-ci.org/mike42/age-tools.svg?branch=master)](https://travis-ci.org/mike42/age-tools)
 
 Python library and command-line tools for working with Age of Empires I data files.
 
