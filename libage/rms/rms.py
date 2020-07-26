@@ -31,5 +31,5 @@ def read(file_name: str):
     if not (file_name.lower().endswith(".rms") or file_name.lower().endswith(".rms2") or file_name.lower().endswith(".def") or file_name.lower().endswith(".inc")):
         raise Exception("Random map script file must end in .rms or .rms2. Included files must be .inc or .def.")
     with open(file_name, 'rb') as f:
-        # endoding: megarandom script has a rogue Latin-1 š on line 2807 which doesn't parse.
+        # encoding: megarandom script has a rogue Latin-1 š on line 2807, so fair to assume it's not UTF-8.
         return read_str(f.read().decode('iso-8859-1'), filename=file_name)
