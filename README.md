@@ -33,6 +33,12 @@ age-archive extract --directory graphics graphics.drs
 age-slp extract graphics/177.slp --palette interfac/50500.bin --player 3 --directory output/
 ```
 
+Show an XML representation of the parameters in an AOE2 random map script (`*.rms` file):
+
+```
+age-rms validate Arabia.rms | xmllint -format -
+```
+
 ## Attribution
 
 - `dat`, `scn` and `drs` format handling is directly based on [SiegeEngineers/genie-rs](https://github.com/SiegeEngineers/genie-rs).
