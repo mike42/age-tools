@@ -1,0 +1,46 @@
+#!/usr/bin/env python3
+import argparse
+import logging
+
+from pypeg2.xmlast import thing2xml
+
+from libage.archive import archive
+from libage.rms import rms
+
+
+def validate_command(extract_args):
+    # Just
+    input_filename = extract_args.rms_file
+    f = rms.read(input_filename)
+    result_str = thing2xml(f, pretty=False, object_names=False)
+    print(result_str.decode('utf-8'))
+
+def main():
+    # General stuff
+    parser = argparse.ArgumentParser(description='Tool to parse AOE2 random map scripts (*.rms, *.rms2)')
+    parser.add_argument('--verbose', '-v', action='count', default=0)
+    subparsers = parser.add_subparsers(help='action to be performed', dest='action', required=True)
+
+    # Extract command
+    parser_extract = subparsers.add_parser('validate', help='Check syntax of map script')
+    parser_extract.add_argument('rms_file', metavar='script.rms', help='the script to validate')
+    parser_extract.add_argument('--directory', type=str, help='output directory', default='.')
+    parser_extract.set_defaults(func=validate_command)
+
+    args = parser.parse_args()
+
+    # Set log level
+    if args.verbose > 1:
+        log_level = logging.DEBUG
+    elif args.verbose == 1:
+        log_level = logging.INFO
+    else:
+        log_level = logging.WARNING
+    logging.basicConfig(level=log_level)
+
+    # Call requested function
+    args.func(args)
+
+
+if __name__ == "__main__":
+    main()

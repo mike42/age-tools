@@ -1,3 +1,5 @@
 pefile
 Pillow
+pypeg2
 PyYAML
+
