@@ -2,6 +2,7 @@
 from dataclasses import dataclass
 from typing import List
 
+from libage.constants.versions import AgeVersion
 from libage.scenario import scn_unknown_data_structure
 from libage.scenario.data import ScnDataReader
 from libage.scenario.map import ScnMap
@@ -102,3 +103,7 @@ def decompress(file_name: str, new_file_name: str):
     header = ScnHeader.read(data)
     with open(new_file_name, 'wb') as f:
         f.write(data.read())
+
+
+def create(size: int, version: AgeVersion = AgeVersion.AOE1) -> ScenarioFile:
+    raise Exception("This feature is not yet available.")
