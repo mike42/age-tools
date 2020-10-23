@@ -13,18 +13,21 @@ class ScnDataWriter:
         self.uncompressed_segment = io.BytesIO()
         self.compressed_segment = io.BytesIO()
         self.data = self.uncompressed_segment
+        self.has_compressed_segment = False
 
     def compress(self):
         """
         Start writing to compressed data segment
         """
         self.data = self.compressed_segment
+        self.has_compressed_segment = True
 
     def done(self) -> bytes:
-        compressor = zlib.compressobj(wbits=-15)
-        self.compressed_segment.seek(0)
-        self.uncompressed_segment.write(compressor.compress(self.compressed_segment.read()))
-        self.uncompressed_segment.write(compressor.flush())
+        if self.has_compressed_segment:
+            compressor = zlib.compressobj(wbits=-15)
+            self.compressed_segment.seek(0)
+            self.uncompressed_segment.write(compressor.compress(self.compressed_segment.read()))
+            self.uncompressed_segment.write(compressor.flush())
         self.uncompressed_segment.seek(0)
         return self.uncompressed_segment.read()
 
@@ -66,21 +69,24 @@ class ScnDataWriter:
             value_bytes += b"\x00" * (size - current_size)
         self.data.write(value_bytes)
 
-    def string16(self, value):
-        size = len(value)
+    def string16(self, value: str):
+        size = len(value) + 1  # space for a null
         self.uint16(size)
         self.string_fixed(value, size)
 
-    def boolean32(self, value):
+    def boolean32(self, value: bool):
         self.uint32(1 if value else 0)
 
-    def string32(self, value):
-        size = len(value)
+    def string32(self, value: str):
+        size = len(value) + 1  # space for a null
         self.uint32(size)
         self.string_fixed(value, size)
 
-    def boolean8(self, value):
+    def boolean8(self, value: bool):
         self.uint8(1 if value else 0)
+
+    def write(self, value: bytes):
+        self.data.write(value)
 
 
 class ScnDataReader:

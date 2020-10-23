@@ -10,6 +10,7 @@ from libage.scenario.scn_engine_properties import ScnEngineProperties
 from libage.scenario.scn_game_properties import ScnGameProperties
 from libage.scenario.scn_header import ScnHeader
 from libage.scenario.scn_object import ScenarioObject
+from libage.scenario.scn_unknown_data_structure import UnknownDataStructure
 from libage.scenario.scn_world_player import WorldPlayer
 
 
@@ -31,7 +32,7 @@ class ScenarioFile:
         else:
             self.tribe_scen.write_classic(data)
             self.map_scen.write(data)
-            num_players = len(self.world_players)
+            num_players = len(self.world_players) + 1
             data.uint32(num_players)
             player_version = 1.12  # TODO map from header version.
             for player in self.world_players:
@@ -40,7 +41,7 @@ class ScenarioFile:
                 data.uint32(len(player_objects))
                 for player_object in player_objects:
                     player_object.write_classic(data, self.header.file_version)
-            # scn_unknown_data_structure.fill(data)
+            scn_unknown_data_structure.default().write(data)
 
 
 def _reader_for(file_name):
@@ -77,7 +78,7 @@ def load(file_name: str) -> ScenarioFile:
                 player_objects.append(obj)
             scenario_objects.append(player_objects)
 
-        scn_unknown_data_structure.skip(data)
+        UnknownDataStructure.read(data) # TODO store this
 
         return ScenarioFile(
             header,
@@ -95,7 +96,7 @@ def load(file_name: str) -> ScenarioFile:
         num_players = data.uint32()
         player_version = 1.12  # TODO map from header version.
         world_players = []
-        for i in range(0, num_players):
+        for i in range(1, num_players):
             world_player = WorldPlayer.read_classic(data, player_version)
             world_players.append(world_player)
 
@@ -108,7 +109,7 @@ def load(file_name: str) -> ScenarioFile:
                 player_objects.append(obj)
             scenario_objects.append(player_objects)
 
-        scn_unknown_data_structure.skip(data)
+        UnknownDataStructure.read(data) # TODO store this
 
         return ScenarioFile(
             header,
@@ -180,7 +181,7 @@ def create(size: int, version: AgeVersion = AgeVersion.AOE1, player_count=2) -> 
     map_scen = ScnMap(
         width=size,
         height=size,
-        tiles=[ScnMapTile(22, 0, 0) for _ in range(0, size * size)]
+        tiles=[ScnMapTile(0, 0, 0) for _ in range(0, size * size)]  # 22 is deep water
     )
     world_players = [WorldPlayer(food=200.0, wood=200.0, gold=0.0, stone=150.0, ore=100.0, goods=0.0, population=75.0)
                      for _ in range(0, 8)]
@@ -189,7 +190,7 @@ def create(size: int, version: AgeVersion = AgeVersion.AOE1, player_count=2) -> 
         tribe_scen=tribe_scen,
         map_scen=map_scen,
         world_players=world_players,
-        objects=[[] for _ in range(0, 8)],
+        objects=[[] for _ in range(0, 9)],
         next_object_id=1
     )
     return base_file

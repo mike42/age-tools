@@ -33,3 +33,13 @@ def test_scenario_de():
     assert -1 == scn.header.player_count
     assert 72 == scn.map_scen.width
     assert 72 == scn.map_scen.height
+
+
+def test_blank_scenario_ror():
+    path = os.path.join(TEST_FILE_DIR, 'blank_scenario_ror.scx')
+    scn = scenario.load(path)
+    assert 1.11 == scn.header.file_version
+    assert 2 == scn.header.header_version
+    assert 2 == scn.header.player_count
+    assert 144 == scn.map_scen.width
+    assert 144 == scn.map_scen.height

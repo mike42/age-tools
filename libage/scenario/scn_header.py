@@ -16,9 +16,9 @@ class ScnHeader:
     def write(self, data: ScnDataWriter):
         data.string_fixed("{:.2f}".format(self.file_version), size=4)
         if self.header_version >= 3 and self.player_count > 0:
-            header_size = 12 + len(self.description)
+            header_size = 12 + len(self.description) + 1
         else:
-            header_size = 20 + len(self.description)
+            header_size = 20 + len(self.description) + 1
         data.uint32(header_size)
         data.uint32(self.header_version)
         if self.header_version >= 3:

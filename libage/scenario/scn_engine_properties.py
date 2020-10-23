@@ -238,9 +238,9 @@ class ScnEngineProperties:
             for i in range(0, 16):
                 player_base = ScnPlayerBaseProperties(
                     active=1,
-                    player_type=0,
-                    civilization=0,
-                    posture=0)
+                    player_type=1,
+                    civilization=1,
+                    posture=4)
                 player_base.write(data)
 
         if self.rge_version > 1.07:
