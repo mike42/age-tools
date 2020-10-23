@@ -56,8 +56,8 @@ def create_command(create_args):
         raise Exception("Scenario format must be .scn, .scx, or .aoescn")
     # Create blank scenario file
     size = create_args.size
-    sceanrio = scenario.create(size=size, version=version)
-    sceanrio.write(output_filename)
+    scenario1 = scenario.create(size=size, version=version)
+    scenario.save(scenario1, output_filename)
 
 
 def main():

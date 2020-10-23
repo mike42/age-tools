@@ -1,4 +1,4 @@
-from libage.scenario.data import ScnDataReader
+from libage.scenario.data import ScnDataReader, ScnDataWriter
 
 
 def skip(data: ScnDataReader):
@@ -26,3 +26,8 @@ def skip(data: ScnDataReader):
             data.uint8(debug='unknown field player {} {}'.format(i, j))
 
         data.done()
+
+
+def fill(data: ScnDataWriter):
+    # TODO
+    pass

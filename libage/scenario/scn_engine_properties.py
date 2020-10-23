@@ -1,7 +1,7 @@
 import logging
 from dataclasses import dataclass
 
-from libage.scenario.data import ScnDataReader
+from libage.scenario.data import ScnDataReader, ScnDataWriter
 from libage.scenario.scn_player_base_properties import ScnPlayerBaseProperties
 
 
@@ -11,11 +11,12 @@ class ScnEngineProperties:
 
     @staticmethod
     def read_classic(data: ScnDataReader):
+        # TODO actually store this stuff
         version = data.float32(debug='version')
         if version > 1.13:
             for i in range(0, 16):
                 # skip past player names
-                data.string_fixed(size=256)
+                player_name = data.string_fixed(size=256)
 
         if version > 1.16:
             raise Exception("Not implemented: player string table not understood")
@@ -25,6 +26,7 @@ class ScnEngineProperties:
                 player_base = ScnPlayerBaseProperties.read(data)
                 logging.debug(player_base)
 
+        is_conquest = False
         if version > 1.07:
             is_conquest = data.boolean8()
 
@@ -220,3 +222,110 @@ class ScnEngineProperties:
         )
         logging.debug(rge_scen)
         return rge_scen
+
+    def write_classic(self, data: ScnDataWriter):
+        # TODO actually use stored values for this stuff
+        data.float32(self.rge_version)
+        if self.rge_version > 1.13:
+            for i in range(0, 16):
+                # player names
+                data.string_fixed('Player name {}'.format(i), size=256)
+
+        if self.rge_version > 1.16:
+            raise Exception("Not implemented: player string table not understood")
+
+        if self.rge_version > 1.13:
+            for i in range(0, 16):
+                player_base = ScnPlayerBaseProperties(
+                    active=1,
+                    player_type=0,
+                    civilization=0,
+                    posture=0)
+                player_base.write(data)
+
+        if self.rge_version > 1.07:
+            is_conquest = False
+            data.boolean8(is_conquest)
+
+        # Some check values?
+        data.uint16(0)
+        data.uint16(0)
+        data.float32(0)
+
+        filename = 'example.scn'
+        data.string16(filename)
+
+        if self.rge_version > 1.16:
+             raise Exception("Not implemented: scenario instruction string table not understood")
+
+        if self.rge_version > 1.22:
+             raise Exception("Not implemented: scout string table not understood")
+
+        description = "description"
+        data.string16(description)
+
+        if self.rge_version >= 1.11:
+            hints_message = ""
+            data.string16(hints_message)
+            win_message = ""
+            data.string16(win_message)
+            loss_message = ""
+            data.string16(loss_message)
+            history_message = ""
+            data.string16(history_message)
+
+        if self.rge_version > 1.22:
+            raise Exception("Not implemented: scout data not understood")
+
+        pregame_cinematic = ""
+        data.string16(pregame_cinematic)
+        victory_cinematic = ""
+        data.string16(victory_cinematic)
+        loss_cinematic = ""
+        data.string16(loss_cinematic)
+
+        if self.rge_version >= 1.09:
+            mission_bmp = ""
+            data.string16(mission_bmp)
+
+        if self.rge_version >= 1.10:
+             mission_image = 0
+             data.uint32(mission_image)
+             width = 0
+             data.uint32(width)
+             height = 0
+             data.uint32(height)
+             orientation = 0
+             data.uint16(orientation)
+
+        for i in range(0, 16):
+            player_build_list = ""
+            data.string16(player_build_list)
+
+        for i in range(0, 16):
+            player_city_plan = ""
+            data.string16(player_city_plan)
+
+        if self.rge_version >= 1.08:
+            for i in range(0, 16):
+                player_personality = ""
+                data.string16(player_personality)
+
+        for i in range(0, 16):
+            """ Embedded files """
+            build_list_length = 0
+            data.uint32(build_list_length)
+            city_plan_length = 0
+            data.uint32(city_plan_length)
+            if self.rge_version >= 1.08:
+                ai_rules_length = 0
+                data.uint32(ai_rules_length)
+            else:
+                data.uint32(0)
+            # Would write build_list, city plan, AI rules if lens weren't 0
+
+        if self.rge_version >= 1.20:
+            raise Exception("Not implemented: AI rules not understood")
+
+        if self.rge_version >= 1.02:
+            data.int32(-99)  # Check value
