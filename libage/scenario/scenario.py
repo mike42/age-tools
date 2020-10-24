@@ -78,7 +78,7 @@ def load(file_name: str) -> ScenarioFile:
                 player_objects.append(obj)
             scenario_objects.append(player_objects)
 
-        UnknownDataStructure.read(data) # TODO store this
+        UnknownDataStructure.read(data)  # TODO store this
 
         return ScenarioFile(
             header,

@@ -73,14 +73,17 @@ class ScnEngineProperties:
                 raise Exception("Mission BMP data not understood")
 
         for i in range(0, 16):
-            logging.debug("Player %d build list %s", i, data.string16())
+            player_build_list = data.string16()
+            logging.debug("Player %d build list %s", i, player_build_list)
 
         for i in range(0, 16):
-            logging.debug("Player %d city plan %s", i, data.string16())
+            player_city_plan = data.string16()
+            logging.debug("Player %d city plan %s", i, player_city_plan)
 
         if version >= 1.08:
             for i in range(0, 16):
-                logging.debug("Player %d personality %s", i, data.string16())
+                player_personality = data.string16()
+                logging.debug("Player %d personality %s", i, player_personality)
 
         for i in range(0, 16):
             """ Embedded files """
@@ -229,22 +232,25 @@ class ScnEngineProperties:
         if self.rge_version > 1.13:
             for i in range(0, 16):
                 # player names
-                data.string_fixed('Player name {}'.format(i), size=256)
+                data.string_fixed('', size=256)
 
         if self.rge_version > 1.16:
             raise Exception("Not implemented: player string table not understood")
 
         if self.rge_version > 1.13:
             for i in range(0, 16):
+                player_active = 1 if i < 2 else 0
+                player_type = 1 if i == 0 else 0
+                player_civ_id = i + 1
                 player_base = ScnPlayerBaseProperties(
-                    active=1,
-                    player_type=1,
-                    civilization=1,
+                    active=player_active,
+                    player_type=player_type,
+                    civilization=player_civ_id,
                     posture=4)
                 player_base.write(data)
 
         if self.rge_version > 1.07:
-            is_conquest = False
+            is_conquest = True
             data.boolean8(is_conquest)
 
         # Some check values?
@@ -252,7 +258,7 @@ class ScnEngineProperties:
         data.uint16(0)
         data.float32(0)
 
-        filename = 'example.scn'
+        filename = 'scenario.scx'
         data.string16(filename)
 
         if self.rge_version > 1.16:
@@ -277,15 +283,15 @@ class ScnEngineProperties:
         if self.rge_version > 1.22:
             raise Exception("Not implemented: scout data not understood")
 
-        pregame_cinematic = ""
+        pregame_cinematic = ' <None> '
         data.string16(pregame_cinematic)
-        victory_cinematic = ""
+        victory_cinematic = ' <None> '
         data.string16(victory_cinematic)
-        loss_cinematic = ""
+        loss_cinematic = ' <None> '
         data.string16(loss_cinematic)
 
         if self.rge_version >= 1.09:
-            mission_bmp = ""
+            mission_bmp = ' <None> '
             data.string16(mission_bmp)
 
         if self.rge_version >= 1.10:
@@ -295,20 +301,20 @@ class ScnEngineProperties:
              data.uint32(width)
              height = 0
              data.uint32(height)
-             orientation = 0
+             orientation = 1
              data.uint16(orientation)
 
         for i in range(0, 16):
-            player_build_list = ""
+            player_build_list = "Random"
             data.string16(player_build_list)
 
         for i in range(0, 16):
-            player_city_plan = ""
+            player_city_plan = ' <None> '
             data.string16(player_city_plan)
 
         if self.rge_version >= 1.08:
             for i in range(0, 16):
-                player_personality = ""
+                player_personality = "Random"
                 data.string16(player_personality)
 
         for i in range(0, 16):
@@ -322,7 +328,7 @@ class ScnEngineProperties:
                 data.uint32(ai_rules_length)
             else:
                 data.uint32(0)
-            # Would write build_list, city plan, AI rules if lens weren't 0
+            # Would write build_list, city plan, AI rules if len() wasn't 0
 
         if self.rge_version >= 1.20:
             raise Exception("Not implemented: AI rules not understood")
