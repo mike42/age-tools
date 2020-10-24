@@ -1,5 +1,5 @@
-pefile
 Pillow
-pypeg2
 PyYAML
-
+pefile
+pypeg2
+pytest

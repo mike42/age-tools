@@ -1,7 +1,7 @@
 import logging
 from dataclasses import dataclass
 
-from libage.scenario.data import ScnDataReader
+from libage.scenario.data import ScnDataReader, ScnDataWriter
 from libage.scenario.scn_engine_properties import ScnEngineProperties
 from libage.scenario.scn_player_start_resources import ScnPlayerStartResources
 
@@ -147,7 +147,7 @@ class ScnGameProperties:
         data.uint32(debug='unknown field 2')
         data.uint32(debug='unknown field 3')  # might be full tech tree
 
-        for j in range(0, 16): # maybe ?
+        for j in range(0, 16):  # maybe ?
             data.uint32(debug='starting age player {}'.format(j))
 
         check4 = data.int32(debug='check value 2')
@@ -163,3 +163,110 @@ class ScnGameProperties:
         )
         logging.debug(game_properties)
         return game_properties
+
+    def write_classic(self, data: ScnDataWriter):
+        self.base.write_classic(data)
+        version = self.base.rge_version
+        if version <= 1.13:
+            for i in range(0, 16):
+                # Not based on real info at the moment
+                data.string_fixed('Player name {}'.format(i), size=256)
+            raise Exception("Not implemented: Don't know how to read player base properties from <1.13 file")
+        else:
+            for i in range(0, 16):
+                # Not based on real info at the moment
+                res = ScnPlayerStartResources(
+                    food=200,
+                    wood=200,
+                    gold=0,
+                    stone=150,
+                    ore=0,
+                    goods=0,
+                    color=0,
+                )
+                res.write(data, version)
+
+        if version >= 1.02:
+            data.int32(-99)  # check
+
+        victory_conquest = 0
+        data.uint32(victory_conquest)
+        victory_ruins = 0
+        data.uint32(victory_ruins)
+        victory_artifacts = 0
+        data.uint32(victory_artifacts)
+        victory_discoveries = 0
+        data.uint32(victory_discoveries)
+        victory_exploration = 0
+        data.uint32(victory_exploration)
+        victory_gold = 0
+        data.uint32(victory_gold)
+        victory_all_flag = 0
+        data.boolean32(victory_all_flag)
+
+        if version >= 1.13:
+            mp_victory_type = 0
+            data.uint32(mp_victory_type)
+            victory_score = 0
+            data.uint32(victory_score)
+            victory_time = 0
+            data.uint32(victory_time)
+
+        for i in range(0, 16):
+            for j in range(0, 16):
+                # stance from player i to j
+                diplomatic_stance = 0
+                data.uint32(diplomatic_stance)
+
+        # 12 victory conditions for each player
+        for i in range(0, 16):
+            for j in range(0, 12):
+                # TODO write these ???
+                data.string_fixed('', size=60)
+
+        if version >= 1.02:
+            data.int32(-99)  # check value
+
+        # Allied victory
+        for i in range(0, 16):
+            data.uint32(0)
+
+        if version >= 1.24:
+            raise Exception("Not implemented: Don't know how to read team information from >=1.24 file")
+
+        if version >= 1.18:
+            # Also has disabled units and building, where are they in older versions?
+            raise Exception("Not implemented: Don't know how to read tech tree from >=1.18 file")
+        elif version > 1.03:
+            for i in range(0, 16):
+                for j in range(0, 20):
+                    # disabled tech player i, position j
+                    disabled_tech_id = 0
+                    data.uint32(disabled_tech_id)
+
+        if version > 1.04:
+            data.uint32(0)  # No idea
+
+        if version >= 1.12:
+            data.uint32(0)  # No idea
+            full_tech_tree = False
+            data.boolean32(full_tech_tree)
+
+        if version > 1.05:
+            for i in range(0, 16):
+                player_start_age = 0
+                data.uint32(player_start_age)
+
+        if version >= 1.02:
+            data.int32(-99)  # check value
+
+        if version >= 1.19:
+            # 'view'??
+            data.uint32(0)
+            data.uint32(0)
+
+        if version >= 1.21:
+            raise Exception("Not implemented: Don't know how to read map type from >=1.21 file")
+
+        if version >= 1.21:
+            raise Exception("Not implemented: Don't know how to read base priorities from >=1.21 file")

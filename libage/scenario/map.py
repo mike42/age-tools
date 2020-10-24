@@ -1,6 +1,8 @@
 from dataclasses import dataclass
+from typing import List
 
-from libage.scenario.data import ScnDataReader
+from libage.scenario.data import ScnDataReader, ScnDataWriter
+
 
 @dataclass
 class ScnMapTile:
@@ -16,12 +18,17 @@ class ScnMapTile:
             data.uint8()
         )
 
+    def write(self, data: ScnDataWriter):
+        data.uint8(self.terrain)
+        data.uint8(self.elevation)
+        data.uint8(self.zone)
+
 
 @dataclass
 class ScnMap:
     width: int
     height: int
-    tiles: list
+    tiles: List[ScnMapTile]
 
     @staticmethod
     def read(data: ScnDataReader):
@@ -31,3 +38,9 @@ class ScnMap:
         for i in range(0, height * width):
             tiles.append(ScnMapTile.read(data))
         return ScnMap(width, height, tiles)
+
+    def write(self, data: ScnDataWriter):
+        data.uint32(self.width)
+        data.uint32(self.height)
+        for tile in self.tiles:
+            tile.write(data)

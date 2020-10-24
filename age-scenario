@@ -3,6 +3,7 @@
 import argparse
 import logging
 
+from libage.constants.versions import AgeVersion
 from libage.scenario import scenario, minimap, fullsize
 
 
@@ -42,6 +43,23 @@ def decompress_command(decompress_args):
     scenario1 = scenario.decompress(input_filename, output_filename)
 
 
+def create_command(create_args):
+    # Select AOE version from file suffix.
+    output_filename = create_args.scenario
+    if output_filename.lower().endswith(".scn"):
+        version = AgeVersion.AOE1
+    elif output_filename.lower().endswith(".scx"):
+        version = AgeVersion.AOE1_ROR
+    elif output_filename.lower().endswith(".aoescn"):
+        version = AgeVersion.AOE1_DE
+    else:
+        raise Exception("Scenario format must be .scn, .scx, or .aoescn")
+    # Create blank scenario file
+    size = create_args.size
+    scenario1 = scenario.create(size=size, version=version)
+    scenario.save(scenario1, output_filename)
+
+
 def main():
     # General stuff
     parser = argparse.ArgumentParser(description='Tool to read AOE1 scenario files (*.scn and *.scx)')
@@ -55,19 +73,25 @@ def main():
     parser_minimap.set_defaults(func=minimap_command)
 
     # Render command
-    parser_minimap = subparsers.add_parser('render', help='render a full-size image of the scenario (work in '
-                                                          'progress). Expects PNG versions of all terrain and border '
-                                                          'graphics to exist in the form "terrain/15001_001.png", '
-                                                          '"border/20000_001.png", etc. These may be produced with '
-                                                          'the age-archive and age-slp utilities.')
-    parser_minimap.add_argument('scenario', metavar='scenario.scx', help='the scenario file to read')
-    parser_minimap.add_argument('--out', type=str, help='output filename', metavar='scenario.png')
-    parser_minimap.set_defaults(func=render_command)
+    parser_render = subparsers.add_parser('render', help='render a full-size image of the scenario (work in '
+                                                         'progress). Expects PNG versions of all terrain and border '
+                                                         'graphics to exist in the form "terrain/15001_001.png", '
+                                                         '"border/20000_001.png", etc. These may be produced with '
+                                                         'the age-archive and age-slp utilities.')
+    parser_render.add_argument('scenario', metavar='scenario.scx', help='the scenario file to read')
+    parser_render.add_argument('--out', type=str, help='output filename', metavar='scenario.png')
+    parser_render.set_defaults(func=render_command)
 
     # Info command
     parser_info = subparsers.add_parser('info', help='show information about a scenario file')
     parser_info.add_argument('scenario', metavar='scenario.scx', help='the scenario file to read')
     parser_info.set_defaults(func=info_command)
+
+    # Create command
+    parser_decompress = subparsers.add_parser('create', help='create an empty scenario file')
+    parser_decompress.add_argument('scenario', metavar='scenario.scx', help='the scenario file to write')
+    parser_decompress.add_argument('--size', type=int, default=20, help='size of the map in tiles')
+    parser_decompress.set_defaults(func=create_command)
 
     # Decompress command
     parser_decompress = subparsers.add_parser('decompress', help='extract the compressed section of a scenario file '

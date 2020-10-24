@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from libage.scenario.data import ScnDataReader
+from libage.scenario.data import ScnDataReader, ScnDataWriter
 
 
 @dataclass
@@ -36,3 +36,21 @@ class WorldPlayer:
             0,
             data.float32(debug='population') if player_version >= 3.13 else 75.0
         )
+
+    def write_classic(self, data: ScnDataWriter, player_version: float):
+        if player_version > 1.06:
+            data.float32(self.food)
+            data.float32(self.wood)
+            data.float32(self.gold)
+            data.float32(self.stone)
+        if player_version > 1.12:
+            data.float32(self.ore)
+            data.float32(self.goods)
+            data.float32(self.population)
+
+    def write_de(self, data: ScnDataWriter):
+        data.float32(self.food)
+        data.float32(self.wood)
+        data.float32(self.gold)
+        data.float32(self.stone)
+        data.float32(self.population)

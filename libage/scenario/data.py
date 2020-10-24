@@ -6,22 +6,87 @@ import zlib
 
 class ScnDataWriter:
     """
-    Work in progress, this will be for writing out files
+    Write out data files (Opposite of ScnDataWriter)
     """
+
     def __init__(self):
-        pass
+        self.uncompressed_segment = io.BytesIO()
+        self.compressed_segment = io.BytesIO()
+        self.data = self.uncompressed_segment
+        self.has_compressed_segment = False
 
     def compress(self):
         """
         Start writing to compressed data segment
         """
-        pass
+        self.data = self.compressed_segment
+        self.has_compressed_segment = True
 
-    def done(self):
-        # Compress the compressed data segment
-        # Write uncompressed data
-        # Write compressed data
-        pass
+    def done(self) -> bytes:
+        if self.has_compressed_segment:
+            compressor = zlib.compressobj(wbits=-15)
+            self.compressed_segment.seek(0)
+            self.uncompressed_segment.write(compressor.compress(self.compressed_segment.read()))
+            self.uncompressed_segment.write(compressor.flush())
+        self.uncompressed_segment.seek(0)
+        return self.uncompressed_segment.read()
+
+    def uint8(self, value: int):
+        value_bytes = value.to_bytes(1, byteorder='little', signed=False)
+        self.data.write(value_bytes)
+
+    def int8(self, value: int):
+        value_bytes = value.to_bytes(1, byteorder='little', signed=True)
+        self.data.write(value_bytes)
+
+    def uint16(self, value: int):
+        value_bytes = value.to_bytes(2, byteorder='little', signed=False)
+        self.data.write(value_bytes)
+
+    def int16(self, value: int):
+        value_bytes = value.to_bytes(2, byteorder='little', signed=True)
+        self.data.write(value_bytes)
+
+    def uint32(self, value: int):
+        value_bytes = value.to_bytes(4, byteorder='little', signed=False)
+        self.data.write(value_bytes)
+
+    def int32(self, value: int):
+        value_bytes = value.to_bytes(4, byteorder='little', signed=True)
+        self.data.write(value_bytes)
+
+    def float32(self, value: float):
+        value_bytes = struct.pack('f', value)
+        self.data.write(value_bytes)
+
+    def string_fixed(self, value: str, size: int):
+        value_bytes = value.encode('ascii')
+        current_size = len(value_bytes)
+        if current_size > size:
+            raise Exception("Expected {} bytes but got {} bytes (value too long)", size, len(value_bytes))
+        elif current_size < size:
+            # Pad with 0x00
+            value_bytes += b"\x00" * (size - current_size)
+        self.data.write(value_bytes)
+
+    def string16(self, value: str):
+        size = len(value) + 1  # space for a null
+        self.uint16(size)
+        self.string_fixed(value, size)
+
+    def boolean32(self, value: bool):
+        self.uint32(1 if value else 0)
+
+    def string32(self, value: str):
+        size = len(value) + 1  # space for a null
+        self.uint32(size)
+        self.string_fixed(value, size)
+
+    def boolean8(self, value: bool):
+        self.uint8(1 if value else 0)
+
+    def write(self, value: bytes):
+        self.data.write(value)
 
 
 class ScnDataReader:
@@ -72,19 +137,19 @@ class ScnDataReader:
             logging.debug("Read uint32 %s='%d'", debug, ret)
         return ret
 
-    def int32(self, debug=None):
+    def int32(self, debug=None) -> int:
         ret = int.from_bytes(self.read(4), byteorder='little', signed=True)
         if debug is not None:
             logging.debug("Read int32 %s='%d'", debug, ret)
         return ret
 
-    def float32(self, debug=None):
+    def float32(self, debug=None) -> float:
         ret = struct.unpack('f', self.read(4))[0]
         if debug is not None:
             logging.debug("Read float32 %s='%f'", debug, ret)
         return ret
 
-    def string_fixed(self, size, debug=None):
+    def string_fixed(self, size, debug=None) -> str:
         """
         Fixed-length string dropping anything after the null.
         """
@@ -112,7 +177,7 @@ class ScnDataReader:
 
     def string32(self, debug=None):
         """
-        Variable-length string, with length read from first two bytes
+        Variable-length string, with length read from first four bytes
         """
         size = self.uint32()
         return self.string_fixed(size, debug)
@@ -148,8 +213,8 @@ class ScnDataReader:
     def unmark(self):
         if self.bytes_read_since_mark != self.mark_info['limit']:
             raise Exception("The structure {} has length {}, but we read {}".format(self.mark_info['name'],
-                                                                          self.mark_info['limit'],
-                                                                          self.bytes_read_since_mark))
+                                                                                    self.mark_info['limit'],
+                                                                                    self.bytes_read_since_mark))
 
     def done(self):
         remainder = self.byteio.read()

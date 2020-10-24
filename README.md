@@ -33,6 +33,12 @@ age-archive extract --directory graphics graphics.drs
 age-slp extract graphics/177.slp --palette interfac/50500.bin --player 3 --directory output/
 ```
 
+Create an empty map (scenario file):
+
+```
+age-scenario create --size 50 my-sceanrio.scn
+```
+
 Show an XML representation of the parameters in an AOE2 random map script (`*.rms` file):
 
 ```
