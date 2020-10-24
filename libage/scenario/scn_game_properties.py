@@ -17,12 +17,14 @@ class ScnGameProperties:
         if version <= 1.13:
             for i in range(0, 16):
                 # skip past player names
-                data.string_fixed(size=256)
+                player_name = data.string_fixed(size=256)
             raise Exception("Not implemented: Don't know how to read player base properties from <1.13 file")
         else:
+            player_start_resources = []
             for i in range(0, 16):
                 # Ignoring at the moment
-                res = ScnPlayerStartResources.read(data, version)
+                this_player_start_resources = ScnPlayerStartResources.read(data, version)
+                player_start_resources.append(this_player_start_resources)
 
         if version >= 1.02:
             check5 = data.int32()
@@ -51,7 +53,7 @@ class ScnGameProperties:
         for i in range(0, 16):
             for j in range(0, 12):
                 # TODO read these ???
-                data.read(60)
+                individual_victory_blob = data.read(60)
 
         if version >= 1.02:
             check5 = data.int32()
@@ -60,7 +62,7 @@ class ScnGameProperties:
 
         # Allied victory
         for i in range(0, 16):
-            data.uint32()
+            allied_victory = data.uint32()
 
         if version >= 1.24:
             raise Exception("Not implemented: Don't know how to read team information from >=1.24 file")
@@ -176,9 +178,9 @@ class ScnGameProperties:
             for i in range(0, 16):
                 # Not based on real info at the moment
                 res = ScnPlayerStartResources(
+                    gold=0,
                     food=200,
                     wood=200,
-                    gold=0,
                     stone=150,
                     ore=0,
                     goods=0,
@@ -189,7 +191,7 @@ class ScnGameProperties:
         if version >= 1.02:
             data.int32(-99)  # check
 
-        victory_conquest = 0
+        victory_conquest = 1
         data.uint32(victory_conquest)
         victory_ruins = 0
         data.uint32(victory_ruins)
@@ -201,27 +203,28 @@ class ScnGameProperties:
         data.uint32(victory_exploration)
         victory_gold = 0
         data.uint32(victory_gold)
-        victory_all_flag = 0
+        victory_all_flag = False
         data.boolean32(victory_all_flag)
 
         if version >= 1.13:
             mp_victory_type = 0
             data.uint32(mp_victory_type)
-            victory_score = 0
+            victory_score = 900
             data.uint32(victory_score)
-            victory_time = 0
+            victory_time = 9000
             data.uint32(victory_time)
 
         for i in range(0, 16):
             for j in range(0, 16):
                 # stance from player i to j
-                diplomatic_stance = 0
+                diplomatic_stance = 3  # 3 is enemy ?
                 data.uint32(diplomatic_stance)
 
         # 12 victory conditions for each player
         for i in range(0, 16):
             for j in range(0, 12):
                 # TODO write these ???
+                # all 0's on blank map.
                 data.string_fixed('', size=60)
 
         if version >= 1.02:
@@ -229,7 +232,8 @@ class ScnGameProperties:
 
         # Allied victory
         for i in range(0, 16):
-            data.uint32(0)
+            allied_victory = 0
+            data.uint32(allied_victory)
 
         if version >= 1.24:
             raise Exception("Not implemented: Don't know how to read team information from >=1.24 file")
@@ -241,7 +245,7 @@ class ScnGameProperties:
             for i in range(0, 16):
                 for j in range(0, 20):
                     # disabled tech player i, position j
-                    disabled_tech_id = 0
+                    disabled_tech_id = 1
                     data.uint32(disabled_tech_id)
 
         if version > 1.04:

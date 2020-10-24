@@ -5,8 +5,8 @@ from libage.scenario.data import ScnDataReader, ScnDataWriter
 
 @dataclass
 class ScnPlayerStartResources:
-    wood: int
     gold: int
+    wood: int
     food: int
     stone: int
     ore: int
@@ -16,8 +16,8 @@ class ScnPlayerStartResources:
     @staticmethod
     def read(data: ScnDataReader, version: float):
         return ScnPlayerStartResources(
-            wood=data.uint32(),
             gold=data.uint32(),
+            wood=data.uint32(),
             food=data.uint32(),
             stone=data.uint32(),
             ore=data.uint32() if version >= 1.17 else 0,
@@ -26,8 +26,8 @@ class ScnPlayerStartResources:
         )
 
     def write(self, data: ScnDataWriter, version: float):
-        data.uint32(self.wood),
         data.uint32(self.gold),
+        data.uint32(self.wood),
         data.uint32(self.food),
         data.uint32(self.stone),
         if version >= 1.17:
